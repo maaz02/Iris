@@ -2,10 +2,35 @@ import {
   BarChart, Bar,
   LineChart, Line,
   PieChart, Pie, Cell,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Label
 } from 'recharts';
 
 const COLORS = ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4'];
+
+const formatNumber = (val) => {
+  if (val === null || val === undefined) return val;
+  if (typeof val === 'boolean') return val;
+  if (val === '') return val;
+  const num = Number(val);
+  if (!isNaN(num)) {
+    if (Number.isInteger(num)) {
+      return new Intl.NumberFormat('en-US').format(num);
+    }
+    return new Intl.NumberFormat('en-US', {
+      maximumFractionDigits: 2,
+    }).format(num);
+  }
+  return val;
+};
+
+const formatAxisLabel = (str) => {
+  if (!str) return '';
+  const lower = str.toLowerCase();
+  if (lower.includes('count') || lower.includes('cnt')) {
+    return 'Count';
+  }
+  return str.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+};
 
 export default function ChartRenderer({ chart, data }) {
   if (!chart || !chart.type) {
@@ -28,15 +53,22 @@ export default function ChartRenderer({ chart, data }) {
     </div>
   );
 
+  const chartMargin = { top: 10, right: 20, bottom: 40, left: 60 };
+
   switch (chart.type) {
     case 'bar':
       return (
         <ChartContainer>
-          <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+          <BarChart data={data} margin={chartMargin}>
             <CartesianGrid strokeDasharray="3 3" stroke="#3f3f46" vertical={false} />
-            <XAxis dataKey={xKey} tick={{ fill: '#a1a1aa', fontSize: 12 }} axisLine={{ stroke: '#3f3f46' }} tickLine={false} />
-            <YAxis tick={{ fill: '#a1a1aa', fontSize: 12 }} axisLine={false} tickLine={false} />
+            <XAxis dataKey={xKey} tickFormatter={formatNumber} tick={{ fill: '#a1a1aa', fontSize: 12 }} axisLine={{ stroke: '#3f3f46' }} tickLine={false}>
+              <Label value={formatAxisLabel(xKey)} offset={-25} position="insideBottom" style={{ fill: '#a1a1aa', fontSize: '11px', textAnchor: 'middle' }} />
+            </XAxis>
+            <YAxis tickFormatter={formatNumber} tick={{ fill: '#a1a1aa', fontSize: 12 }} axisLine={false} tickLine={false}>
+              <Label value={formatAxisLabel(yKeys[0])} angle={-90} position="insideLeft" offset={-45} style={{ fill: '#a1a1aa', fontSize: '11px', textAnchor: 'middle' }} />
+            </YAxis>
             <Tooltip 
+              formatter={(value) => formatNumber(value)}
               contentStyle={{ backgroundColor: '#18181b', color: '#e4e4e7', borderRadius: '8px', border: '1px solid #3f3f46', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
             />
             {yKeys && yKeys.map((yKey, index) => (
@@ -49,11 +81,16 @@ export default function ChartRenderer({ chart, data }) {
     case 'line':
       return (
         <ChartContainer>
-          <LineChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+          <LineChart data={data} margin={chartMargin}>
             <CartesianGrid strokeDasharray="3 3" stroke="#3f3f46" vertical={false} />
-            <XAxis dataKey={xKey} tick={{ fill: '#a1a1aa', fontSize: 12 }} axisLine={{ stroke: '#3f3f46' }} tickLine={false} />
-            <YAxis tick={{ fill: '#a1a1aa', fontSize: 12 }} axisLine={false} tickLine={false} />
+            <XAxis dataKey={xKey} tickFormatter={formatNumber} tick={{ fill: '#a1a1aa', fontSize: 12 }} axisLine={{ stroke: '#3f3f46' }} tickLine={false}>
+              <Label value={formatAxisLabel(xKey)} offset={-25} position="insideBottom" style={{ fill: '#a1a1aa', fontSize: '11px', textAnchor: 'middle' }} />
+            </XAxis>
+            <YAxis tickFormatter={formatNumber} tick={{ fill: '#a1a1aa', fontSize: 12 }} axisLine={false} tickLine={false}>
+              <Label value={formatAxisLabel(yKeys[0])} angle={-90} position="insideLeft" offset={-45} style={{ fill: '#a1a1aa', fontSize: '11px', textAnchor: 'middle' }} />
+            </YAxis>
             <Tooltip 
+              formatter={(value) => formatNumber(value)}
               contentStyle={{ backgroundColor: '#18181b', color: '#e4e4e7', borderRadius: '8px', border: '1px solid #3f3f46', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
             />
             {yKeys && yKeys.map((yKey, index) => (
@@ -76,6 +113,7 @@ export default function ChartRenderer({ chart, data }) {
         <ChartContainer>
           <PieChart>
             <Tooltip 
+              formatter={(value) => formatNumber(value)}
               contentStyle={{ backgroundColor: '#18181b', color: '#e4e4e7', borderRadius: '8px', border: '1px solid #3f3f46', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
             />
             <Legend wrapperStyle={{ fontSize: '12px' }} />
@@ -107,11 +145,11 @@ export default function ChartRenderer({ chart, data }) {
         let displayValue = '';
         
         if (keys.length === 1) {
-          displayValue = row[keys[0]];
+          displayValue = formatNumber(row[keys[0]]);
         } else if (keys.length === 2) {
-          displayValue = `[${row[keys[0]]}]: ${row[keys[1]]}`;
+          displayValue = `[${row[keys[0]]}]: ${formatNumber(row[keys[1]])}`;
         } else {
-          displayValue = row[keys[0]];
+          displayValue = formatNumber(row[keys[0]]);
         }
         
         return (
@@ -144,7 +182,7 @@ export default function ChartRenderer({ chart, data }) {
                 {data.map((row, i) => (
                   <tr key={i} className="hover:bg-zinc-800/30 transition-colors">
                     {columns.map((col) => (
-                      <td key={col} className="px-6 py-3 whitespace-nowrap text-zinc-300">{row[col]}</td>
+                      <td key={col} className="px-6 py-3 whitespace-nowrap text-zinc-300">{formatNumber(row[col])}</td>
                     ))}
                   </tr>
                 ))}

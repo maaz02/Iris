@@ -1,82 +1,99 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronUp, AlertCircle, Sparkles } from 'lucide-react';
-import { cn } from '../lib/utils';
+import { AlertCircle } from 'lucide-react';
 import ChartRenderer from './ChartRenderer';
 
 export default function ResponseCard({ data }) {
   const { question, loading, error, result } = data;
-  const [showSql, setShowSql] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = (sql) => {
+    navigator.clipboard.writeText(sql);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   return (
     <div className="flex flex-col gap-4 w-full">
-      {/* User Question (Right aligned) */}
-      <div className="flex justify-end w-full">
-        <div className="bg-accent-600 text-white px-4 py-2.5 rounded-2xl rounded-tr-sm max-w-[85%] shadow-sm">
-          <p className="text-sm leading-relaxed">{question}</p>
+      {/* User Question */}
+      <div className="flex justify-end">
+        <div className="bg-surface border surface-border rounded-md rounded-tr-none shadow-premium p-md max-w-[80%]">
+          <p className="font-body-md text-body-md text-on-surface">{question}</p>
         </div>
       </div>
 
-      {/* System Response (Left aligned) */}
+      {/* System Response */}
       <div className="flex justify-start w-full mb-6">
-        <div className="flex gap-3 max-w-[90%]">
-          <div className="w-8 h-8 rounded-full bg-accent-950/50 flex items-center justify-center shrink-0 shadow-sm border border-accent-900/50">
-            <Sparkles size={16} className="text-accent-400" />
+        <div className="flex gap-md max-w-[90%] w-full">
+          <div className="w-8 h-8 rounded bg-surface border surface-border flex-shrink-0 flex items-center justify-center text-indigo-accent mt-1">
+            <span className="material-symbols-outlined text-[18px]">auto_awesome</span>
           </div>
           
-          <div className="flex flex-col gap-3 w-full">
+          <div className="flex-1 space-y-md">
             {loading ? (
-              <div className="bg-zinc-800/50 border border-zinc-700/50 rounded-2xl rounded-tl-sm p-5 shadow-sm min-w-[200px]">
+              <div className="bg-surface border surface-border rounded-md rounded-tl-none shadow-premium p-md min-w-[200px]">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="h-4 w-4 rounded-full bg-zinc-700 animate-pulse"></div>
-                  <div className="h-4 w-24 bg-zinc-700 rounded animate-pulse"></div>
+                  <div className="h-4 w-4 rounded-full bg-surface-variant animate-pulse"></div>
+                  <div className="h-4 w-24 bg-surface-variant rounded animate-pulse"></div>
                 </div>
                 <div className="space-y-2">
-                  <div className="h-3 bg-zinc-800 rounded w-full animate-pulse"></div>
-                  <div className="h-3 bg-zinc-800 rounded w-5/6 animate-pulse"></div>
-                  <div className="h-3 bg-zinc-800 rounded w-4/6 animate-pulse"></div>
+                  <div className="h-3 bg-surface-variant rounded w-full animate-pulse"></div>
+                  <div className="h-3 bg-surface-variant rounded w-5/6 animate-pulse"></div>
+                  <div className="h-3 bg-surface-variant rounded w-4/6 animate-pulse"></div>
                 </div>
               </div>
             ) : error ? (
-              <div className="bg-red-950/50 border border-red-900/50 rounded-2xl rounded-tl-sm p-4 inline-flex items-start gap-2 shadow-sm text-red-400">
+              <div className="bg-error-container border border-error/30 rounded-md rounded-tl-none shadow-premium p-md inline-flex items-start gap-2 text-error">
                 <AlertCircle size={18} className="shrink-0 mt-0.5" />
-                <p className="text-sm">{error}</p>
+                <p className="font-body-md text-body-md">{error}</p>
               </div>
             ) : result ? (
-              <div className="bg-zinc-800/50 border border-zinc-700/50 rounded-2xl rounded-tl-sm shadow-sm overflow-hidden flex flex-col w-full">
+              <>
                 {/* Answer Text */}
                 {result.answer && (
-                  <div className="p-5 border-b border-zinc-700/50">
-                    <p className="text-zinc-200 text-sm leading-relaxed">{result.answer}</p>
+                  <div className="bg-surface border surface-border rounded-md rounded-tl-none shadow-premium p-md">
+                    <p className="font-body-md text-body-lg text-on-surface">{result.answer}</p>
                   </div>
                 )}
                 
                 {/* Chart Rendering */}
                 {result.chart && result.rows && result.rows.length > 0 && (
-                  <div className="p-5 overflow-hidden">
+                  <div className="bg-surface border surface-border rounded-md shadow-premium p-md">
+                    {result.chart.title && (
+                      <div className="flex justify-between items-center mb-md">
+                        <h4 className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider flex items-center gap-sm">
+                          <span className="material-symbols-outlined text-sm">bar_chart</span>
+                          {result.chart.title}
+                        </h4>
+                        <span className="material-symbols-outlined text-on-surface-variant text-[16px] cursor-pointer hover:text-on-surface">more_vert</span>
+                      </div>
+                    )}
                     <ChartRenderer chart={result.chart} data={result.rows} />
                   </div>
                 )}
 
                 {/* Collapsible SQL */}
                 {result.sql && (
-                  <div className="bg-zinc-900/50 border-t border-zinc-700/50">
-                    <button 
-                      onClick={() => setShowSql(!showSql)}
-                      className="w-full px-5 py-3 flex items-center justify-between text-xs font-medium text-zinc-400 hover:text-zinc-200 transition-colors"
-                    >
-                      <span>View generated SQL</span>
-                      {showSql ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                    </button>
-                    {showSql && (
-                      <div className="px-5 pb-5 pt-1">
-                        <pre className="bg-zinc-950 text-zinc-300 p-4 rounded-xl text-xs overflow-x-auto font-mono">
-                          <code>{result.sql}</code>
-                        </pre>
-                      </div>
-                    )}
-                  </div>
+                  <details className="group bg-surface border surface-border rounded-md shadow-premium overflow-hidden">
+                    <summary className="flex items-center gap-sm p-sm cursor-pointer hover:bg-surface-variant transition-colors select-none font-label-sm text-label-sm text-on-surface">
+                      <span className="material-symbols-outlined text-[16px] transition-transform group-open:rotate-90">chevron_right</span>
+                      <span className="material-symbols-outlined text-[16px] text-on-surface-variant">code</span>
+                      View SQL
+                    </summary>
+                    <div className="bg-[#1a1a1a] p-md overflow-x-auto relative m-sm rounded-[8px] border surface-border">
+                      <button 
+                        onClick={() => handleCopy(result.sql)}
+                        className="absolute top-sm right-sm p-xs rounded bg-surface-variant hover:bg-outline-variant text-on-surface-variant transition-colors" 
+                        title="Copy SQL"
+                      >
+                        <span className="material-symbols-outlined text-[14px]">
+                          {copied ? 'check' : 'content_copy'}
+                        </span>
+                      </button>
+                      <pre className="font-code text-code text-on-surface-variant m-0"><code>{result.sql}</code></pre>
+                    </div>
+                  </details>
                 )}
-              </div>
+              </>
             ) : null}
           </div>
         </div>

@@ -119,7 +119,7 @@ Rules for "chart":
 - Valid types: bar, line, pie, table, single_value.
 - Logic:
   - "single_value": use this if the result has exactly 1 row and 1 column (numeric), OR if the result has exactly 1 row and 2 columns (one categorical, one numeric).
-  - "table": the safe fallback for anything that doesn't clearly fit bar/line/pie. If the result has only ONE column and it contains string/text values (not numbers), always pick "table" — never "bar", "line", or "pie".
+  - "table": the safe fallback for anything that doesn't clearly fit bar/line/pie. If the result has only ONE column and it contains string/text values (not numbers), always pick "table" — never "bar", "line", or "pie". If the result has more than 20 rows and the x-axis is a continuous numeric column (like age, year, price), select "table" instead of "bar". A table is more readable for dense numeric distributions.
   - "bar": only valid when there is a categorical column AND a numeric column in the result.
   - "line": only valid when there is a time/date column AND a numeric column.
   - "pie": only valid when there are exactly 2 columns: one categorical, one numeric, with fewer than 8 rows.
