@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+python-multipart
+duckdb
+google-genai
+groq
+python-dotenv
+pydantic
+pytest
+pandas
+openpyxl
+xlrd
+chardet

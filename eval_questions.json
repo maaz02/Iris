@@ -1,0 +1,122 @@
+[
+  {
+    "id": 1,
+    "category": "aggregation",
+    "question": "What were total sales across all orders?",
+    "expected_sql": "SELECT SUM(Sales) AS total_sales FROM data"
+  },
+  {
+    "id": 2,
+    "category": "aggregation",
+    "question": "What was the total profit?",
+    "expected_sql": "SELECT SUM(Profit) AS total_profit FROM data"
+  },
+  {
+    "id": 3,
+    "category": "aggregation",
+    "question": "What is the average discount given across all orders?",
+    "expected_sql": "SELECT AVG(Discount) AS avg_discount FROM data"
+  },
+  {
+    "id": 4,
+    "category": "grouping",
+    "question": "What are total sales broken down by region?",
+    "expected_sql": "SELECT Region, SUM(Sales) AS total_sales FROM data GROUP BY Region ORDER BY total_sales DESC"
+  },
+  {
+    "id": 5,
+    "category": "grouping",
+    "question": "Which product category has the highest total profit?",
+    "expected_sql": "SELECT Category, SUM(Profit) AS total_profit FROM data GROUP BY Category ORDER BY total_profit DESC LIMIT 1"
+  },
+  {
+    "id": 6,
+    "category": "grouping",
+    "question": "What is the total sales for each customer segment?",
+    "expected_sql": "SELECT Segment, SUM(Sales) AS total_sales FROM data GROUP BY Segment ORDER BY total_sales DESC"
+  },
+  {
+    "id": 7,
+    "category": "grouping",
+    "question": "Which sub-category has the lowest total profit?",
+    "expected_sql": "SELECT \"Sub-Category\", SUM(Profit) AS total_profit FROM data GROUP BY \"Sub-Category\" ORDER BY total_profit ASC LIMIT 1"
+  },
+  {
+    "id": 8,
+    "category": "filtering",
+    "question": "How many orders were shipped using Same Day shipping?",
+    "expected_sql": "SELECT COUNT(*) AS order_count FROM data WHERE \"Ship Mode\" = 'Same Day'"
+  },
+  {
+    "id": 9,
+    "category": "filtering",
+    "question": "What were total sales in the West region?",
+    "expected_sql": "SELECT SUM(Sales) AS total_sales FROM data WHERE Region = 'West'"
+  },
+  {
+    "id": 10,
+    "category": "filtering",
+    "question": "How many orders resulted in a loss (negative profit)?",
+    "expected_sql": "SELECT COUNT(DISTINCT \"Order ID\") AS loss_order_count FROM data WHERE Profit < 0"
+  },
+  {
+    "id": 11,
+    "category": "filtering",
+    "question": "What is the total sales for orders with a discount greater than 20%?",
+    "expected_sql": "SELECT SUM(Sales) AS total_sales FROM data WHERE Discount > 0.2"
+  },
+  {
+    "id": 12,
+    "category": "time-based",
+    "question": "What were total sales in 2016?",
+    "expected_sql": "SELECT SUM(Sales) AS total_sales FROM data WHERE EXTRACT(YEAR FROM \"Order Date\") = 2016"
+  },
+  {
+    "id": 13,
+    "category": "time-based",
+    "question": "What were total sales by month in 2017?",
+    "expected_sql": "SELECT strftime('%Y-%m', \"Order Date\") AS month, SUM(Sales) AS total_sales FROM data WHERE EXTRACT(YEAR FROM \"Order Date\") = 2017 GROUP BY month ORDER BY month"
+  },
+  {
+    "id": 14,
+    "category": "time-based",
+    "question": "Which year had the highest total profit?",
+    "expected_sql": "SELECT EXTRACT(YEAR FROM \"Order Date\") AS year, SUM(Profit) AS total_profit FROM data GROUP BY year ORDER BY total_profit DESC LIMIT 1"
+  },
+  {
+    "id": 15,
+    "category": "time-based",
+    "question": "What is the average number of days between order date and ship date?",
+    "expected_sql": "SELECT AVG(DATEDIFF('day', \"Order Date\", \"Ship Date\")) AS avg_days_to_ship FROM data"
+  },
+  {
+    "id": 16,
+    "category": "ranking",
+    "question": "What are the top 5 states by total sales?",
+    "expected_sql": "SELECT State, SUM(Sales) AS total_sales FROM data GROUP BY State ORDER BY total_sales DESC LIMIT 5"
+  },
+  {
+    "id": 17,
+    "category": "ranking",
+    "question": "Who are the top 3 customers by total sales?",
+    "expected_sql": "SELECT \"Customer Name\", SUM(Sales) AS total_sales FROM data GROUP BY \"Customer Name\" ORDER BY total_sales DESC LIMIT 3"
+  },
+  {
+    "id": 18,
+    "category": "ranking",
+    "question": "What are the 5 least profitable products?",
+    "expected_sql": "SELECT \"Product Name\", SUM(Profit) AS total_profit FROM data GROUP BY \"Product Name\" ORDER BY total_profit ASC LIMIT 5"
+  },
+  {
+    "id": 19,
+    "category": "combined",
+    "question": "What is the total sales and profit for the Furniture category in the East region?",
+    "expected_sql": "SELECT SUM(Sales) AS total_sales, SUM(Profit) AS total_profit FROM data WHERE Category = 'Furniture' AND Region = 'East'"
+  },
+  {
+    "id": 20,
+    "category": "combined",
+    "question": "How many unique customers placed orders in the Corporate segment?",
+    "expected_sql": "SELECT COUNT(DISTINCT \"Customer ID\") AS unique_customers FROM data WHERE Segment = 'Corporate'"
+  }
+]

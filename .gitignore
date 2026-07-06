@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Environment variables — NEVER commit these
+.env
+
+# Node
+node_modules/
+dist/
+build/
+
+# DuckDB files
+*.duckdb
+*.duckdb.wal
+
+# Eval results (optional — you may want to keep latest)
+eval_results.json
+
+# OS files
+.DS_Store
+Thumbs.db
